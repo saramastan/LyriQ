@@ -1,0 +1,284 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>LyrIQ</title>
+        
+        <script>
+          (function() {
+            const theme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', theme);
+          })();
+        </script>
+        
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+        <link rel="stylesheet" href="{% static 'css/home.css' %}" />
+        {% block head %}{% endblock %}
+        
+        <!-- Dark Mode Styles - Applied to ALL pages -->
+        <style>
+          :root {
+            --bg-body: #f8f9fa;
+            --bg-card: #ffffff;
+            --text-primary: #111111;
+            --text-secondary: #6b7280;
+            --border-color: #e6e6e6;
+            --shadow: 0 8px 22px rgba(0,0,0,.06);
+            --chip-bg: #f6f8fa;
+            --chip-border: #e6e6e6;
+            --dropzone-border: #c9d1d9;
+          }
+
+          [data-theme="dark"] {
+            --bg-body: #1a1a1a;
+            --bg-card: #2d2d2d;
+            --text-primary: #e4e4e4;
+            --text-secondary: #a0a0a0;
+            --border-color: #444444;
+            --shadow: 0 8px 22px rgba(0,0,0,.3);
+            --chip-bg: #3a3a3a;
+            --chip-border: #555555;
+            --dropzone-border: #555555;
+          }
+
+          body {
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
+            margin: 0;
+            padding: 0;
+          }
+
+          .bg-light {
+            background-color: var(--bg-body) !important;
+          }
+
+          /* Game page specific styles */
+          .panel, .home-card, .game-area, .hints-panel, .stats {
+            background: var(--bg-card) !important;
+            border-color: var(--border-color) !important;
+            box-shadow: var(--shadow);
+          }
+
+          /* Fix home page card in dark mode - remove visible box */
+          [data-theme="dark"] .home-card {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+          }
+
+          /* Keep light mode home card styled */
+          [data-theme="light"] .home-card {
+            background: var(--bg-card) !important;
+            border: 1px solid var(--border-color) !important;
+            box-shadow: var(--shadow) !important;
+          }
+
+          h1, h2, h3, h4, h5, h6 {
+            color: var(--text-primary);
+          }
+
+          .page-head .subtitle,
+          .rowline .k,
+          .kv .k {
+            color: var(--text-secondary);
+          }
+
+          .rowline .v,
+          .kv .v {
+            color: var(--text-primary);
+          }
+
+          .chip {
+            background: var(--chip-bg);
+            border-color: var(--chip-border);
+            color: var(--text-primary);
+          }
+
+          .dropzone {
+            border-color: var(--dropzone-border);
+            background: var(--bg-card);
+          }
+
+          input[type="text"], 
+          .form-control,
+          textarea {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border-color: var(--border-color);
+          }
+
+          .alert {
+            background: var(--bg-card);
+            border-color: var(--border-color);
+            color: var(--text-primary);
+          }
+
+          /* Navbar toggle button styling */
+          .theme-toggle-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: 2px solid #ffffff;
+            border-radius: 8px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 0;
+            flex-shrink: 0;
+            z-index: 1050;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+          }
+
+          .theme-toggle-btn:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            border-color: #ffd700;
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.6);
+          }
+
+          .theme-toggle-btn svg {
+            width: 20px;
+            height: 20px;
+            stroke: #ffffff;
+            pointer-events: none;
+            filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
+          }
+        </style>
+    </head>
+    
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+          <div class="container-fluid">
+                <a class="navbar-brand" href="/">
+                    <img src="{% static 'img/LyrIQ_NavBar.svg' %}"
+                        class="navbar-logo d-inline-block align-top"
+                        id="navbar-logo"
+                        alt="">
+                </a>
+                
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+              <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'howto' %}">How To Play?</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="game">Play LyrIQ</a>
+                </li>
+                {% if request.user.is_authenticated %}
+                <li class="nav-item">
+                  <a class="nav-link" href="leaderboard">Leaderboard</a>
+                </li>
+                {% endif %}
+              </ul>
+              
+              <div class="d-flex align-items-center gap-2">
+                <!-- DARK MODE TOGGLE IN NAVBAR -->
+                <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle dark mode" type="button">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+                    <!-- Icon will be set by JavaScript -->
+                  </svg>
+                </button>
+                
+                {% if request.user.is_authenticated %}
+                <div class="dropdown">
+                  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                    {{ request.user.email }}
+                  </button>
+                  <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                    <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
+                  </ul>
+                </div>
+                {% else %}
+                <a class="btn btn-outline-light" href="{% url 'login' %}">Login</a>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="container mt-4">
+            {% block content %}
+            {% endblock %}
+        </div>
+        
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        
+        <!-- Dark Mode JavaScript - Applied to ALL pages -->
+        <script>
+          (function() {
+            function initThemeToggle() {
+              const toggle = document.getElementById('theme-toggle');
+              const html = document.documentElement;
+              
+              if (!toggle) {
+                console.error('Theme toggle button not found');
+                return;
+              }
+              
+              // Check for saved theme preference or default to light
+              const currentTheme = localStorage.getItem('theme') || 'light';
+              html.setAttribute('data-theme', currentTheme);
+              
+              // Update icon based on theme
+              updateIcon(currentTheme);
+              
+              // Toggle theme on button click
+              toggle.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const theme = html.getAttribute('data-theme');
+                const newTheme = theme === 'light' ? 'dark' : 'light';
+                
+                console.log('Toggling theme from', theme, 'to', newTheme);
+                
+                html.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                updateIcon(newTheme);
+              };
+              
+              function updateIcon(theme) {
+                const icon = toggle.querySelector('svg');
+                if (!icon) return;
+                
+                if (theme === 'dark') {
+                  // Sun icon (for switching to light)
+                  icon.innerHTML = `
+                    <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" 
+                          stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
+                  `;
+                } else {
+                  // Moon icon (for switching to dark)
+                  icon.innerHTML = `
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" 
+                          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                  `;
+                }
+              }
+              
+            }
+
+            // Try multiple initialization methods
+            if (document.readyState === 'loading') {
+              document.addEventListener('DOMContentLoaded', initThemeToggle);
+            } else {
+              initThemeToggle();
+            }
+            
+            // Fallback: try again after a short delay
+            setTimeout(initThemeToggle, 100);
+          })();
+        </script>
+        
+        {% block scripts %}{% endblock %}
+    </body>
+</html>

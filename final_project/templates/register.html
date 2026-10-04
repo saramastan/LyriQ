@@ -1,0 +1,26 @@
+{% extends "all.html" %}
+
+{% block content %}
+
+<main class="register">
+  <div class="register-container">
+    <h2>Register</h2>
+    <div class="invalid-feedback d-block">
+      {% if messages %}
+        {% for message in messages %}
+          {% if "error" in message.tags %}
+            <p class="text-danger">{{ message }}</p>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+    </div>
+    <form method="post">
+      {% csrf_token %} {{ form.as_p }}
+      <button type="submit" class="btn btn-success btn-sm">Register</button>
+    </form>
+    <br />
+    <a class="btn btn-secondary btn-sm" href="{% url 'login' %}">Back to Login</a>
+  </div>
+</main>
+{% endblock %}
+

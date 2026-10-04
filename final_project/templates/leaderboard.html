@@ -1,0 +1,264 @@
+{% extends "all.html" %}
+{% load static %}
+
+{% block head %}
+<style>
+  .leaderboard-page {
+    padding: clamp(16px, 3vw, 32px);
+  }
+  
+  .leaderboard-container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .stats-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  
+  .filter-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 24px;
+  }
+  
+  .leaderboard-table {
+    background: var(--bg-card);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  
+  .table {
+    margin-bottom: 0;
+    color: var(--text-primary);
+  }
+  
+  .table thead {
+    background: var(--chip-bg);
+    border-bottom: 2px solid var(--border-color);
+  }
+  
+  .table tbody tr {
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .table tbody tr:last-child {
+    border-bottom: none;
+  }
+  
+  .table tbody tr:hover {
+    background: var(--chip-bg);
+  }
+  
+  .rank-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-weight: 700;
+  }
+  
+  .rank-1 {
+    background: linear-gradient(135deg, #ffd700, #ffed4e);
+    color: #000;
+  }
+  
+  .rank-2 {
+    background: linear-gradient(135deg, #c0c0c0, #e8e8e8);
+    color: #000;
+  }
+  
+  .rank-3 {
+    background: linear-gradient(135deg, #cd7f32, #e8a87c);
+    color: #fff;
+  }
+  
+  .rank-other {
+    background: var(--chip-bg);
+    color: var(--text-secondary);
+  }
+  
+  .current-user-row {
+    background: rgba(13, 110, 253, 0.1) !important;
+    font-weight: 600;
+  }
+  
+  .stat-item {
+    text-align: center;
+    padding: 12px;
+  }
+  
+  .stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  
+  .stat-label {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-top: 4px;
+  }
+  
+  @media (max-width: 768px) {
+    .table {
+      font-size: 0.9rem;
+    }
+    
+    .rank-badge {
+      width: 28px;
+      height: 28px;
+      font-size: 0.85rem;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="leaderboard-page">
+  <div class="leaderboard-container">
+    
+    <!-- Page Header -->
+    <div class="text-center mb-4">
+      <h1 class="fw-bold text-primary mb-2">Leaderboard</h1>
+      <p class="text-secondary">See how you stack up against other players!</p>
+    </div>
+    
+    <!-- User Stats -->
+    {% if user_stats %}
+    <div class="stats-card">
+      <h3 class="fw-semibold mb-3 text-center">Your Stats</h3>
+      <div class="row">
+        <div class="col-md-4">
+          <div class="stat-item">
+            <div class="stat-value text-primary">{{ user_stats.total_games }}</div>
+            <div class="stat-label">Games Played</div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="stat-item">
+            <div class="stat-value text-success">{{ user_stats.highest_score }}</div>
+            <div class="stat-label">Highest Score</div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="stat-item">
+            <div class="stat-value text-warning">{{ user_stats.total_points }}</div>
+            <div class="stat-label">Total Points</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+    
+    <!-- Filters -->
+    <div class="filter-section">
+      <form method="get" class="row g-3 align-items-end">
+        <div class="col-md-5">
+          <label for="artist" class="form-label fw-semibold">Filter by Artist</label>
+          <select name="artist" id="artist" class="form-select">
+            <option value="">All Artists</option>
+            {% for artist in all_artists %}
+              <option value="{{ artist }}" {% if artist == selected_artist %}selected{% endif %}>
+                {{ artist }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        
+        <div class="col-md-5">
+          <label for="difficulty" class="form-label fw-semibold">Filter by Difficulty</label>
+          <select name="difficulty" id="difficulty" class="form-select">
+            <option value="">All Difficulties</option>
+            {% for diff in all_difficulties %}
+              <option value="{{ diff }}" {% if diff == selected_difficulty %}selected{% endif %}>
+                {{ diff }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        
+        <div class="col-md-2">
+          <button type="submit" class="btn btn-primary w-100">Apply</button>
+        </div>
+      </form>
+      
+      {% if selected_artist or selected_difficulty %}
+      <div class="mt-2 text-center">
+        <a href="{% url 'leaderboard' %}" class="btn btn-sm btn-outline-secondary">Clear Filters</a>
+      </div>
+      {% endif %}
+    </div>
+    
+    <!-- Leaderboard Table -->
+    <div class="leaderboard-table">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th style="width: 80px;" class="text-center">Rank</th>
+            <th>Player</th>
+            <th>Artist</th>
+            <th>Difficulty</th>
+            <th class="text-end">Score</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if top_scores %}
+            {% for score in top_scores %}
+            <tr {% if score.user == request.user %}class="current-user-row"{% endif %}>
+              <td class="text-center">
+                <span class="rank-badge {% if forloop.counter == 1 %}rank-1{% elif forloop.counter == 2 %}rank-2{% elif forloop.counter == 3 %}rank-3{% else %}rank-other{% endif %}">
+                  {{ forloop.counter }}
+                </span>
+              </td>
+              <td>
+                {{ score.user.username }}
+                {% if score.user == request.user %}
+                  <span class="badge bg-primary ms-2">You</span>
+                {% endif %}
+              </td>
+              <td>{{ score.artist }}</td>
+              <td>
+                <span class="badge 
+                  {% if score.difficulty == 'Easy' %}bg-success
+                  {% elif score.difficulty == 'Medium' %}bg-warning text-dark
+                  {% elif score.difficulty == 'Hard' %}bg-danger
+                  {% endif %}">
+                  {{ score.difficulty }}
+                </span>
+              </td>
+              <td class="text-end fw-bold">{{ score.highscore|floatformat:0 }}</td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="5" class="text-center py-5 text-secondary">
+                <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                <p class="mt-3">No scores yet. Be the first to play!</p>
+              </td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+    
+    <!-- Back Button -->
+    <div class="text-center mt-4">
+      <a href="{% url 'home' %}" class="btn btn-secondary px-4">Back to Home</a>
+    </div>
+    
+  </div>
+</main>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+{% endblock %}

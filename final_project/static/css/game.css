@@ -1,0 +1,301 @@
+/* ===========================
+   GAME PAGE — Wireframe 1 Layout
+   =========================== */
+
+/* Fix white bar issue */
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.home-page, .game-page {
+  margin: 0;
+  padding: clamp(16px, 3vw, 32px);
+}
+
+.game-page {
+  --gap: 18px;
+  --card-bg: var(--bg-card);
+  --card-bd: 1px solid var(--border-color);
+  --card-br: 16px;
+  padding: clamp(16px, 3vw, 28px);
+}
+
+/* Wider working area like the sketch */
+.game-page .container { max-width: 1200px; }
+
+/* Title + small artist line */
+.page-head { text-align: center; margin-bottom: 10px; }
+.page-head .title { margin: 0; font-weight: 800; letter-spacing: .2px; color: #0d6efd; }
+.page-head .subtitle { 
+  color: var(--text-secondary); 
+  margin-top: 4px; 
+  font-size: .98rem; 
+}
+
+/* 3-column grid: Hint | Game | Stats */
+.game-layout.three-col {
+  display: grid;
+  grid-template-columns: 1.1fr 1.8fr 1.1fr;
+  gap: 22px;
+  align-items: start;
+}
+
+/* Card */
+.panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--card-br);
+  box-shadow: var(--shadow);
+  padding: 14px;
+}
+
+/* ---------- Hints (left) ---------- */
+.hints-panel h3 { 
+  margin: 0 0 10px; 
+  font-weight: 800;
+  color: var(--text-primary);
+}
+.hint-rows { display: grid; gap: 10px; }
+.rowline {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 10px;
+  align-items: center;
+  border-bottom: 1px dashed var(--border-color);
+  padding-bottom: 6px;
+}
+.rowline:last-child { border-bottom: 0; }
+.rowline .k { 
+  font-weight: 700; 
+  color: var(--text-secondary);
+}
+.rowline .v { 
+  color: var(--text-primary);
+}
+
+/* ---------- Center game area ---------- */
+.game-area { 
+  display: grid; 
+  gap: 16px;
+  background: var(--bg-card);
+}
+
+/* Big empty dropzone (top) */
+.dropzone {
+  min-height: 240px;
+  border: 2px dashed var(--dropzone-border);
+  border-radius: 14px;
+  padding: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-card);
+  justify-content: flex-start;
+  font-size: 1rem;
+}
+
+/* Word bank directly under dropzone */
+.wordbank-under .words {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 16px;
+  justify-content: center;
+}
+
+/* Chip look (neutral, tactile) */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--chip-border);
+  background: var(--chip-bg);
+  font-weight: 600;
+  color: var(--text-primary);
+  user-select: none;
+}
+
+/* Future drag cursors */
+.chip[draggable="true"] { cursor: grab; }
+.chip[draggable="true"]:active { cursor: grabbing; }
+
+/* Submit row (big centered button) */
+.submit-row {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+.btn-submit {
+  min-width: 180px;
+  font-weight: 800;
+  letter-spacing: .3px;
+}
+
+/* Tries badge centered under button */
+.tries { display: flex; justify-content: center; }
+
+/* ---------- Stats (right) ---------- */
+.stats h3 { 
+  margin: 0 0 10px; 
+  font-weight: 800;
+  color: var(--text-primary);
+}
+.kv {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px 12px;
+  align-items: center;
+  font-size: 1rem;
+}
+.kv .k { color: var(--text-secondary); }
+.kv .v { 
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* Inline feedback banners (for messages) */
+.feedback { display: grid; gap: 10px; }
+.alert {
+  border-radius: 12px;
+  padding: 12px 14px;
+  border: 1px solid transparent;
+  font-weight: 600;
+}
+.alert.success { background:#e6ffed; border-color:#94d3a2; color:#106d2a; }
+.alert.error   { background:#ffebe9; border-color:#f1a7a3; color:#86181d; }
+.alert.info    { background:#eef6ff; border-color:#b6d3ff; color:#0b4aa2; }
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .game-layout.three-col { grid-template-columns: 1fr; gap: 16px; }
+  .wordbank-under .words { justify-content: flex-start; }
+}
+.heart {
+  position: relative;
+  display: inline-block;
+  width: 20px;
+  height: 18px;
+  margin: 0 3px;
+}
+
+.heart::before,
+.heart::after {
+  display: block;
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 10px;
+  height: 16px;
+  background: red;
+  border-radius: 10px 10px 0 0;
+}
+
+.heart::before {
+  left: 10px;
+  transform: rotate(-45deg);
+  transform-origin: 0 100%;
+}
+
+.heart::after {
+  left: 0;
+  transform: rotate(45deg);
+  transform-origin: 100% 100%;
+}
+
+.heart.empty::before,
+.heart.empty::after {
+  display: block;
+  background: lightgray;
+}
+
+.puzzle {
+    position: relative;
+    display: inline-block;
+    width: 20px;
+    height: 18px;
+    margin: 0 3px;
+}
+
+/* Full hint: colored (blue) */
+.puzzle.full::before {
+  content: "🧩";
+  display: block;
+}
+
+/* Empty hint: gray */
+.puzzle.empty::before {
+  content: "🧩";
+  display: block;
+  color: lightgray;
+  opacity: 0.2;
+}
+
+
+#gameOverModal .gameover-card {
+  border: 0;
+  border-radius: 18px;
+  box-shadow:
+    0 10px 25px rgba(0, 0, 0, 0.12),
+    0 2px 6px rgba(0, 0, 0, 0.06);
+  padding-bottom: 6px; 
+}
+
+#gameOverModal .modal-header {
+  justify-content: center;
+  padding-top: 22px;
+}
+
+#gameOverModal .modal-title {
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+#gameOverModal .modal-body {
+  padding-top: 10px;
+  padding-bottom: 6px;
+}
+
+#gameOverModal .score-label {
+  color: #8a8f98;
+  font-size: 0.95rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+#gameOverModal .score-value {
+  font-size: clamp(2.75rem, 6vw, 3.5rem);
+  line-height: 1.1;
+  font-weight: 800;
+  color: #1f2937; 
+}
+
+#gameOverModal .modal-footer {
+  padding-top: 2px;
+  padding-bottom: 22px;
+}
+
+.go-btn {
+  min-width: 140px;
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-weight: 700;
+}
+
+.go-btn.btn-outline-secondary:hover {
+  background: #f3f4f6;
+}
+
+/* Mobile: if it gets too tight, stack nicely */
+@media (max-width: 420px) {
+  #gameOverModal .modal-footer {
+    gap: 10px;
+  }
+  .go-btn {
+    width: 100%;
+  }
+}
+

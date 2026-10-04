@@ -1,0 +1,98 @@
+{% extends "all.html" %}
+
+{% block content %}
+
+<main class="container py-5">
+  <h1 class="text-center text-primary fw-bold mb-4">How to Play — LyrIQ</h1>
+  <p class="lead text-center mb-5">
+    LyrIQ challenges your music knowledge! Rearrange scrambled lyrics to form the correct line and earn points before running out of lives.
+  </p>
+
+  <!-- Gameplay -->
+  <section class="mb-5">
+    <h3 class="fw-semibold mb-3">Gameplay</h3>
+    <div class="d-flex flex-column gap-2">
+      <div> 1. On the Start page, enter an artist and press <strong>Play</strong>.</div>
+      <div> 2. Drag & drop the word chips to form the correct lyric line.</div>
+      <div> 3. Click <strong>Submit</strong> to check your guess.</div>
+      <div> 4. Use the <strong>Hint</strong> button if you’re stuck (limited supply).</div>
+      <div> 5. Run out of tries and you lose a life; lose all lives and it’s game over.</div>
+    </div>
+  </section>
+
+  <section class="container my-4">
+    <h3 class="fw-semibold mb-3">Difficulty</h3>
+  
+    <table class="table table-bordered text-center align-middle shadow-sm">
+      <thead class="table-light">
+        <tr>
+          <th>Mode</th>
+          <th>Lives</th>
+          <th>Hints</th>
+          <th>Tries</th>
+          <th>Decoy Words</th>
+          <th>Point Multiplier</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Easy</td>
+          <td>3</td>
+          <td>5</td>
+          <td>3</td>
+          <td>No</td>
+          <td>x1</td>
+        </tr>
+        <tr>
+          <td>Medium</td>
+          <td>3</td>
+          <td>3</td>
+          <td>2</td>
+          <td>Yes</td>
+          <td>x2</td>
+        </tr>
+        <tr>
+          <td>Hard</td>
+          <td>1</td>
+          <td>3</td>
+          <td>1</td>
+          <td>Yes</td>
+          <td>x5</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Hints / Lives / Scoring -->
+  <section class="row g-4 mb-5">
+    <div class="col-md-6">
+      <div class="p-3 border rounded-3 h-100">
+        <h4 class="fw-semibold">Hints</h4>
+        <div> <i class="bi bi-dot"></i> Start with a limited number of hints (mode-dependent).</div>
+        <div> <i class="bi bi-dot"></i> Reveals info like album, song title, or surrounding lyrics depending on difficulty.</div>
+        <div> <i class="bi bi-dot"></i> Hints are shared across the whole game and do not reset between rounds.</div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="p-3 border rounded-3 h-100">
+        <h4 class="fw-semibold">Lives & Tries</h4>
+        <div> <i class="bi bi-dot"></i> Wrong guess <i class="bi bi-arrow-right"></i> lose a try.</div>
+        <div> <i class="bi bi-dot"></i> Zero tries <i class="bi bi-arrow-right"></i> lose a life.</div>
+        <div> <i class="bi bi-dot"></i> Zero lives <i class="bi bi-arrow-right"></i> game over.</div>
+      </div>
+    </div>
+    <div class="col-12">
+      <div class="p-3 border rounded-3">
+        <h4 class="fw-semibold">Scoring</h4>
+        <div> <strong>Points = 1 x (tries left) x (difficulty multiplier)</strong> on each correct lyric. Example: Medium mode (x2) with 2 tries left <i class="bi bi-arrow-right"></i> <strong>4 points</strong> </div>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    </div>
+    </div>
+  </section>
+
+  <!-- Back button -->
+  <div class="text-center mt-5">
+    <a href="/" class="btn btn-primary btn-lg px-4">Back to Start</a>
+  </div>
+</main>
+{% endblock %}

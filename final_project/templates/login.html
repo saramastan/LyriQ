@@ -1,0 +1,24 @@
+{% extends "all.html" %}
+
+{% block content %}
+<main class="login-container d-flex flex-column gap-3">
+  <h2>Login</h2>
+  {% if messages %} {% for message in messages %} {% if "error" in message.tags %}
+  <p class="error">{{ message }}</p>
+  {% endif %} {% endfor %} {% endif %}
+  <form method="post" class="d-flex flex-column gap-1">
+    {% csrf_token %} {{ form.email }} {{ form.password }}
+    <div>
+      <button class="btn btn-success btn-sm" type="submit">Login</button>
+    </div>
+  </form>
+  <div>
+    Create an Account:
+    <a class="btn btn-secondary btn-sm" href="/register">Register</a>
+  </div>
+  <div>
+    Forgot your password?
+    <a class="btn btn-secondary btn-sm" href="{% url 'reset' %}">Password Reset</a>
+  </div>
+</main>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "all.html" %}
+{% load static %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<main class="home-page text-center py-5">
+  <div class="container">
+      <div class="home-logo mb-4">
+            <img src="{% static 'img/LyrIQ_HomePage.svg' %}" alt="LyrIQ Logo" class="home-logo-img">
+          </div>
+      
+    <p class="lead mb-5">Test your music IQ — unscramble lyrics, guess the song, and climb the leaderboard!</p>
+
+    <!-- Main Buttons -->
+    <div class="d-flex justify-content-center gap-4 mb-5">
+      <a href="{% url 'start' %}" class="btn btn-lg btn-primary px-4">Play</a>
+      <a href="{% url 'howto' %}" class="btn btn-lg btn-outline-secondary px-4">How to Play</a>
+    </div>
+
+</main>
+{% endblock %}

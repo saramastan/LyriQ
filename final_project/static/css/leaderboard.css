@@ -1,0 +1,241 @@
+/* Leaderboard Page Styles */
+
+.leaderboard-page {
+  padding: clamp(16px, 3vw, 32px);
+  min-height: 80vh;
+}
+
+.leaderboard-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.stats-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.filter-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow);
+}
+
+.leaderboard-table {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.table {
+  margin-bottom: 0;
+  color: var(--text-primary);
+}
+
+.table thead {
+  background: var(--chip-bg);
+  border-bottom: 2px solid var(--border-color);
+}
+
+.table thead th {
+  font-weight: 700;
+  color: var(--text-primary);
+  padding: 16px 12px;
+}
+
+.table tbody tr {
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color 0.2s ease;
+}
+
+.table tbody td {
+  padding: 14px 12px;
+  vertical-align: middle;
+}
+
+.table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.table tbody tr:hover {
+  background: var(--chip-bg);
+}
+
+/* Rank Badges */
+.rank-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.rank-1 {
+  background: linear-gradient(135deg, #ffd700, #ffed4e);
+  color: #000;
+  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
+}
+
+.rank-2 {
+  background: linear-gradient(135deg, #c0c0c0, #e8e8e8);
+  color: #000;
+  box-shadow: 0 2px 8px rgba(192, 192, 192, 0.4);
+}
+
+.rank-3 {
+  background: linear-gradient(135deg, #cd7f32, #e8a87c);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(205, 127, 50, 0.4);
+}
+
+.rank-other {
+  background: var(--chip-bg);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+/* Current User Highlight */
+.current-user-row {
+  background: rgba(13, 110, 253, 0.08) !important;
+  font-weight: 600;
+}
+
+[data-theme="dark"] .current-user-row {
+  background: rgba(13, 110, 253, 0.15) !important;
+}
+
+/* User Stats */
+.stat-item {
+  text-align: center;
+  padding: 16px 12px;
+}
+
+.stat-value {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-top: 8px;
+  font-weight: 500;
+}
+
+/* Filter Form */
+.filter-section .form-label {
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.filter-section .form-select {
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+.filter-section .form-select:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-secondary);
+}
+
+.empty-state i {
+  font-size: 4rem;
+  opacity: 0.4;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .table {
+    font-size: 0.9rem;
+  }
+  
+  .table thead th,
+  .table tbody td {
+    padding: 12px 8px;
+  }
+  
+  .rank-badge {
+    width: 32px;
+    height: 32px;
+    font-size: 0.85rem;
+  }
+  
+  .stat-value {
+    font-size: 1.8rem;
+  }
+  
+  .stat-label {
+    font-size: 0.85rem;
+  }
+  
+  .stats-card {
+    padding: 16px;
+  }
+  
+  .filter-section {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 576px) {
+  /* Stack filters vertically on mobile */
+  .filter-section .row {
+    gap: 12px;
+  }
+  
+  /* Hide artist column on very small screens */
+  .table th:nth-child(3),
+  .table td:nth-child(3) {
+    display: none;
+  }
+  
+  .stat-value {
+    font-size: 1.5rem;
+  }
+}
+
+/* Badge Styling */
+.badge {
+  font-weight: 600;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+/* Dark Mode Adjustments */
+[data-theme="dark"] .table {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .rank-1,
+[data-theme="dark"] .rank-2 {
+  color: #000;
+}
+
+[data-theme="dark"] .filter-section .form-select option {
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+}

@@ -1,0 +1,474 @@
+{% extends "all.html" %}
+{% load static %}
+
+{% block head %}
+  <link href="{% static 'css/game.css' %}" rel="stylesheet" />
+{% endblock %}
+
+{% block content %}
+<div class="bg-light text-center p-4">
+  <main class="game-page">
+    <div class="container">
+
+      <!-- Title + small artist line -->
+      <header class="page-head">
+        <h1 class="title text-primary">Decode the Lyric</h1>
+        <div class="subtitle">Artist: <span>{{ artist_name|default:"—" }}</span></div>
+        <div class="subtitle">Difficulty: <span>{{ difficulty_name|default:"—" }}</span></div>
+      </header>
+
+      <!-- LAYOUT: 3 Columns (Hint | Game | Right Rail) -->
+      <div class="game-layout three-col">
+
+        <!-- ========== LEFT: HINTS ========== -->
+        <aside class="panel hints-panel">
+          <!-- Centered puzzle meter (5 pieces, no title) -->
+          <div class="hints-meter text-center mb-2" aria-label="Hints remaining">
+            {% for _ in hints_filled %}<span class="puzzle full" aria-hidden="true"></span>
+            {% endfor %}
+            {% for _ in hints_empty %}<span class="puzzle empty" aria-hidden="true"></span>
+            {% endfor %}
+            <span class="visually-hidden">{{ curr_hints }}/{{ max_hints }} hints remaining</span>
+          </div>
+
+          <!-- Get Hint button -->
+          <div class="hint-header mb-2">
+            <button
+              type="button"
+              class="btn btn-warning hint-cta btn-hint w-100 text-center"
+              data-bs-toggle="modal"
+              data-bs-target="#hintModal"
+              aria-label="Get a hint"
+              {% if game_over %}disabled aria-disabled="true"{% endif %}>
+              Get Hint
+            </button>
+          </div>
+
+          <div class="hint-rows">
+            <div class="rowline">
+              <div class="k">Album:</div>
+              <div class="v">
+                {% if difficulty_name == "Easy" %}
+                    {{ album_name|default:"—" }}
+                {% elif hint_stage|default:0 >= 1 %}
+                  {{ album_name|default:"—" }}
+                {% else %}
+                  —
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="rowline">
+              <div class="k">Song:</div>
+              <div class="v">
+                {% if difficulty_name == "Easy" %}
+                  {{ song_title|default:"—" }}
+                {% elif hint_stage|default:0 >= 2 %}
+                  {{ song_title|default:"—" }}
+                {% else %}
+                  —
+                {% endif %}
+              </div>
+            </div>
+            {% if difficulty_name == "Easy" %}
+                <div class="rowline">
+                  <div class="k">Before Lyric:</div>
+                  <div class="v">
+                      {% if hint_stage|default:0 >= 2 %}
+                        {{ hint_before|default:"—" }}
+                      {% else %}
+                          —
+                      {% endif %}
+                  </div>
+                </div>
+                
+                <div class="rowline">
+                    <div class="k">After Lyric:</div>
+                    <div class="v">
+                        {% if hint_stage|default:0 >= 2 %}
+                        {{ hint_after|default:"—" }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </div>
+                  </div>
+            {% endif %}
+            
+          </div>
+        
+          
+        </aside>
+
+        <!-- ========== MIDDLE: GAME AREA ========== -->
+        <section class="panel game-area" aria-labelledby="area-title">
+          <h3 id="area-title" class="visually-hidden">Game Area</h3>
+
+          <!-- Big empty DROPZONE -->
+          <div id="dropzone" class="dropzone">
+            {% for w in dropbox_words %}
+              <span class="chip" data-word="{{ w }}">{{ w }}</span>
+            {% endfor %}
+          </div>
+
+          <!-- WORD BANK -->
+          <div class="wordbank-under">
+            <div class="words" id="bottom_words">
+              {% for w in bottom_words %}
+                <span class="chip" data-word="{{ w }}">{{ w }}</span>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- SUBMIT -->
+          {% if song_title and tries_left > 0 and not is_correct %}
+            <div class="submit-row">
+              <button class="btn btn-secondary btn-sm" type="button" id="shuffle_button">Shuffle</button>
+            </div>
+
+            <form method="post" action="{{ request.path }}" class="submit-row">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="guess" />
+              <input type="hidden" name="guess" id="guess_inputA" class="text-guess-visually-hidden" value="" />
+              <input type="hidden" name="bottom" id="bottom_inputA" class="text-guess-visually-hidden" value="" />
+              <button class="btn btn-primary btn-submit" type="submit" id="submitBtn"
+                      {% if game_over %}disabled aria-disabled="true"{% endif %}>
+                <span class="spinner-border spinner-border-sm me-2 d-none" id="submitSpinner"></span>
+                SUBMIT
+              </button>
+            </form>
+
+            <div class="tries">
+              <span class="badge bg-info-subtle text-dark fs-5 py-2 px-3 rounded-pill">
+                Tries Left: {{ tries_left|default:3 }}
+              </span>
+            </div>
+          {% endif %}
+
+          <!-- Feedback -->
+          <div class="feedback" role="status" aria-live="polite">
+            {% if error_message %}
+              <div class="alert error">{{ error_message }}</div>
+            {% endif %}
+            {% if message %}
+              <div class="alert {% if is_correct %}success{% else %}info{% endif %}">{{ message }}</div>
+            {% endif %}
+          </div>
+          
+          <!-- Next round button (when finished and NOT game over) -->
+           
+          {# Next round button (when finished and NOT game over) #}
+          {% if not game_over %}
+            {% if tries_left == 0 or is_correct %}
+              <form method="post" action="{{ request.path }}" class="mt-3">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="get_snippet" />
+                <input type="hidden" name="artist" value="{{ artist_name }}" />
+                <button type="submit" class="btn btn-secondary w-100" id="nextBtn">
+                    <span class="spinner-border spinner-border-sm me-2 d-none" id="nextSpinner"></span>
+                    Next Song
+                </button>
+
+              </form>
+            {% endif %}
+
+            <!-- End Game button -->
+             <button id="end-game-btn" 
+             class="btn btn-outline-danger ms-2" 
+             type="button" data-bs-toggle="modal"
+             data-bs-target="#endGameConfirmModal">
+               End Game
+              </button>
+          {% endif %}
+
+        </section>
+
+        <!-- ========== RIGHT RAIL: Lives stacked over Stats ========== -->
+        <div class="right-rail">
+          <!-- Lives -->
+          <aside class="panel lives" aria-labelledby="lives-title">
+          <div class="d-flex align-items-center justify-content-center hearts-inline">
+            {% for _ in lives_filled %}<div class="heart"></div>
+            {% endfor %}
+            {% for _ in lives_empty %}<div class="heart empty"></div>
+            {% endfor %}
+          </div>
+        </aside>
+
+          <!-- Stats -->
+          <aside class="panel stats" aria-labelledby="stats-title">
+            <h3 id="stats-title" class="mb-2">Stats</h3>
+            <div class="kv">
+              <div class="k">Score</div><div class="v">{{ current_score }}</div>
+              <div class="k">Highscore</div><div class="v">{{ highscore|default:"—" }}</div>
+            </div>
+          </aside>
+        </div>
+
+      </div>
+      <!-- /game-layout -->
+    </div>
+  </main>
+</div>
+{% endblock %}
+      
+{% block scripts %}
+  <!-- Sortable & Bootstrap -->
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Your game logic (load ONCE) -->
+  <script src="{% static 'js/game.js' %}"></script>
+
+  <!-- Hint Confirmation Pop-up -->
+  <div class="modal fade" id="hintModal" tabindex="-1" aria-labelledby="hintModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content text-center">
+        <div class="modal-header border-0">
+          <h5 class="modal-title text-warning" id="hintModalLabel">Need a Hint?</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body pb-3">
+          <form method="post" action="{{ request.path }}" style="display: flex; justify-content: center;">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="get_hint">
+            <input type="hidden" name="artist" value="{{ artist_name }}">
+            <input type="hidden" name="guess" id="guess_inputB" class="text-guess-visually-hidden" value="" />
+            <input type="hidden" name="bottom" id="bottom_inputB" class="text-guess-visually-hidden" value="" />
+            <button type="submit" class="btn btn-warning w-100" {% if game_over %}disabled aria-disabled="true"{% endif %}>
+              Reveal Hint
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 'Correct' Pop-up -->
+  <div class="modal fade" id="correctModal" tabindex="-1" aria-labelledby="correctModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+
+        <div class="modal-header border-0 modal-header-centered">
+          <h5 class="modal-title text-success text-center fw-bold" id="correctModalLabel">Correct!</h5>
+        </div>
+
+        <div class="modal-body">
+          <div class="text-center mb-2">
+            <div class="result-icon">🏆</div>
+            <p class="mb-1 text-muted">The lyric was:</p>
+            <p class="fw-semibold result-lyric">“{{ correct_lyric|default:"—" }}”</p>
+          </div>
+
+          <div class="d-flex justify-content-center gap-3 flex-wrap my-2">
+            <div class="d-flex align-items-center gap-2">
+              <span class="text-muted fw-semibold">Base</span>
+              <span class="fw-bold">+{{ base_points }}</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <span class="text-muted fw-semibold">Mode</span>
+              <span class="fw-bold">x{{ mode_mult }}</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <span class="text-muted fw-semibold">Tries</span>
+              <span class="fw-bold">x{{ tries_mult }}</span>
+            </div>
+          </div>
+
+          <div class="text-center">
+            <span class="badge bg-success-subtle text-success fw-bold px-3 py-2 rounded-pill">
+              +{{ total_gained_points }} Points
+            </span>
+          </div>
+        </div>
+
+        <div class="modal-footer border-0">
+          <form method="post" action="{{ request.path }}" class="w-100">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="get_snippet">
+            <input type="hidden" name="artist" value="{{ artist_name }}">
+            <button type="submit" class="btn btn-primary w-100">Continue</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 'Oops' Pop-up -->
+<div class="modal fade" id="incorrectModal" tabindex="-1" aria-labelledby="incorrectModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content">
+            
+            <div class="modal-header border-0 modal-header-centered">
+                <h5 class="modal-title text-danger text-center fw-bold" id="incorrectModalLabel">Oops</h5>
+            </div>
+            
+            <div class="modal-body">
+                <div class="text-center mb-2">
+                    <div class="result-icon">💔</div>
+                    <p class="mb-1 text-muted">The lyric was:</p>
+                    <p class="fw-semibold result-lyric">“{{ correct_lyric|default:"—" }}”</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="text-danger fw-bold mb-2">−1 Life</div>
+                    <div class="d-flex justify-content-center align-items-center">
+                        {% for _ in lives_filled %}<div class="heart"></div>
+                        {% endfor %}
+                        {% for _ in lives_empty %}<div class="heart empty"></div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        <div class="modal-footer border-0">
+          {% if tries_left > 0 %}
+            <button type="button" class="btn btn-primary w-100" data-bs-dismiss="modal">Continue</button>
+          {% else %}
+            {% if not game_over %}
+              <form method="post" action="{{ request.path }}" class="w-100">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="get_snippet">
+                <input type="hidden" name="artist" value="{{ artist_name }}">
+                
+                <button type="submit" class="btn btn-secondary w-100" id="nextBtn2">
+                    <span class="spinner-border spinner-border-sm me-2 d-none" id="nextSpinner2"></span>
+                    Next Song
+                </button>
+                
+              </form>
+            {% endif %}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+</div>
+
+
+    <!-- End Game Confirmation Pop-up -->
+    <div class="modal fade" id="endGameConfirmModal" tabindex="-1"
+    aria-labelledby="endGameConfirmLabel" aria-hidden="true">
+ <div class="modal-dialog modal-dialog-centered">
+   <div class="modal-content">
+
+     <div class="modal-header border-0 modal-header-centered">
+       <h5 class="modal-title text-danger text-center fw-bold"
+           id="endGameConfirmLabel">
+         End Game?
+       </h5>
+       <button type="button" class="btn-close" data-bs-dismiss="modal"
+               aria-label="Close"></button>
+     </div>
+
+     <div class="modal-body text-center">
+       <p>Are you sure you want to end the game?</p>
+     </div>
+
+     <div class="modal-footer border-0 d-flex justify-content-center gap-3">
+       <button type="button" class="btn btn-outline-secondary"
+               data-bs-dismiss="modal">
+         Cancel
+       </button>
+       <form method="post" action="{{ request.path }}" class="d-inline">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="end_game">
+        <button type="submit" class="btn btn-danger">
+          End Game
+        </button>
+      </form>
+    </div>
+
+   </div>
+ </div>
+</div>
+
+  <!-- Game Over Panel -->
+  <div class="modal fade" id="gameOverModal" tabindex="-1" aria-labelledby="gameOverLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content gameover-card">
+        <div class="modal-header border-0 justify-center">
+          <h5 class="modal-title fw-bold text-center w-100" id="gameOverLabel">GAME OVER</h5>
+        </div>
+
+        <div class="modal-body text-center">
+          <div class="text-center mb-2">
+            <div class="result-icon">☠️</div>
+            <p class="mb-1 text-muted">The lyric was:</p>
+            <p class="fw-semibold result-lyric">“{{ correct_lyric|default:"—" }}”</p>
+          </div>
+          <div class="text-danger fw-bold mb-2">−1 Life</div>
+          <div class="d-flex align-items-center justify-content-center hearts-inline">
+            {% for _ in lives_filled %}<div class="heart"></div>
+            {% endfor %}
+            {% for _ in lives_empty %}<div class="heart empty"></div>
+            {% endfor %}
+            </div>
+          
+          <div class="text-center">
+            <div class="score-label">SCORE</div>
+            <div class="score-value">{{ current_score|default:0 }}</div>
+          </div>
+        </div>
+
+        <div class="modal-footer border-0 d-flex justify-content-center gap-3 flex-wrap">
+          <a class="btn btn-outline-secondary go-btn" href="{% url 'home' %}">Home</a>
+          <form method="post" action="{{ request.path }}" class="d-inline">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="reset_game">
+            <button type="submit" class="btn btn-secondary w-100" id="retryBtn">
+                <span class="spinner-border spinner-border-sm me-2 d-none" id="retrySpinner"></span>
+                Retry
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Auto-open logic -->
+  <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        const gameOver = {{ game_over|yesno:"true,false,false" }};
+        const isCorrect = {{ is_correct|yesno:"true,false,null" }};
+        const triesLeft = {{ tries_left|default:0 }};
+
+        if (gameOver === true) {
+          const m = document.getElementById('gameOverModal');
+          if (m) new bootstrap.Modal(m).show();
+          return;
+        }
+        if (isCorrect === true) {
+          const m = document.getElementById('correctModal');
+          if (m) new bootstrap.Modal(m).show();
+        } else if (isCorrect === false && Number(triesLeft) === 0) {
+          const m = document.getElementById('incorrectModal');
+          if (m) new bootstrap.Modal(m).show();
+        }
+      });
+      
+      document.addEventListener("DOMContentLoaded", () => {
+          const buttons = [
+               { btn: 'submitBtn', spinner: 'submitSpinner' },
+               { btn: 'nextBtn', spinner: 'nextSpinner' },
+               { btn: 'retryBtn', spinner: 'retrySpinner' },
+               { btn: 'nextBtn2', spinner: 'nextSpinner2' }
+               ];
+                           
+           buttons.forEach(({btn, spinner}) => {
+               const b = document.getElementById(btn);
+               const s = document.getElementById(spinner);
+               if (b && s) {
+                   b.addEventListener('click', (e) => {
+                       e.preventDefault();
+                       s.classList.remove('d-none');
+                       b.disabled = true;
+                       setTimeout(() => {
+                           b.closest('form').submit();
+                       }, 50);
+                   });
+               }
+           });
+      });
+      
+  </script>
+{% endblock %}
